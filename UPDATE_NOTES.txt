@@ -1,0 +1,27 @@
+INFINITY LOAN SERVICES WEBSITE UPDATE
+=====================================
+
+This package is based on the uploaded website ZIP and retains its existing page structure,
+loan forms, EMI calculator, scripts, styles, hero assets and integrations.
+
+Updates included:
+- Rebranded public-facing Fortune Loan Services text, metadata, logo references and assets to Infinity Loans & Business Solutions.
+- Updated the colour variables to Infinity's navy, royal blue, bright blue, green and orange palette.
+- Rebuilt About Us content using the current live Infinity Loans & Business Solutions About Us page:
+  company profile, published track record, private/institutional lending, poor-CIBIL case policy,
+  EMI restructuring, property valuation, mission, vision, founder profile, growth roadmap,
+  service segments, six-step process and compliance disclaimer.
+- Added a consistent responsive navigation menu to Refer and Earn and checked the menu links
+  for Home, About Us, Loan Solutions, EMI Calculator, Join Us, Refer and Earn and Contact Us.
+- Updated company contact details, email addresses, WhatsApp destination and corporate office
+  to the current Infinity Loans & Business Solutions details.
+- Updated canonical URLs, sitemap, robots.txt and Vercel route rewrites for
+  https://www.infinityloanservices.com.
+- Updated email form delivery configuration to Infinity addresses; verify the sender domain
+  and FormSubmit activation in Vercel before relying on FormSubmit delivery.
+
+IMPORTANT:
+- Loan approvals, rates, terms, valuation and disbursement remain subject to the relevant lender.
+- Published business performance figures on About Us are reproduced from the live website.
+- To deploy, extract the ZIP and upload its contents (index.html, style.css, script.js, assets,
+  api folder and other files) to the root of your GitHub/Vercel project.

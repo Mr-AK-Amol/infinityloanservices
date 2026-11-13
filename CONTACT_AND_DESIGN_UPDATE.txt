@@ -1,0 +1,15 @@
+INFINITY LOAN SERVICES — CONTACT & DESIGN UPDATE
+
+1. Call number: +91 95798 80841.
+2. WhatsApp number: +91 97666 16960.
+3. Official email addresses used throughout the website:
+   - business@infinityloanservices.com
+   - official.infinityloanservices@gmail.com
+4. Website form email delivery (FormSubmit API) sends to both official inboxes.
+5. WhatsApp destination for the website forms: +91 97666 16960.
+6. Assigned Loan Expert in every form export: Aamin Khan – Founder & Director (all states).
+7. Updated the preloader logo sizing to sit inside the circular loader stage.
+8. Improved contrast for section labels such as “LET'S TALK FINANCE” on dark blue backgrounds.
+9. Asset references are retained as written in the code. This ZIP intentionally excludes the assets folder.
+10. Forms that use the server email API require the configured FormSubmit activation in Vercel. WhatsApp opens a prefilled message; the visitor must tap Send.
+11. All forms display a submission thank-you and email delivery status. Full Aadhaar and PAN values are excluded from WhatsApp messages for privacy.
