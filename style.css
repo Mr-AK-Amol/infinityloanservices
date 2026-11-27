@@ -2639,7 +2639,11 @@ h1 span{
 .form-field input[aria-invalid="true"],.form-field select[aria-invalid="true"]{border-color:#dc2626!important;box-shadow:0 0 0 3px rgba(220,38,38,.08)}
 @media(max-width:480px){.conditional-form-section{padding:13px}.conditional-form-section .form-grid{gap:8px}}
 
+<<<<<<< HEAD
 /* Loan inquiry submission status */
+=======
+/* Friendly loan inquiry confirmation shown after WhatsApp opens */
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
 #inquiryStatus.inquiry-confirmation {
   display: block;
   margin: 14px 0 2px;
@@ -2653,6 +2657,7 @@ h1 span{
   line-height: 1.65;
   text-align: left;
 }
+<<<<<<< HEAD
 #inquiryStatus.inquiry-submission-pending,
 #inquiryStatus.inquiry-submission-error {
   display: block;
@@ -2691,6 +2696,11 @@ h1 span{
 
 
 /* After both delivery services accept the inquiry, replace the form fields with the submission greeting. */
+=======
+
+
+/* After WhatsApp opens, replace the form fields with the submission greeting. */
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
 #inquiryForm.is-submitted > .form-grid,
 #inquiryForm.is-submitted > .inquiry-submit,
 #inquiryForm.is-submitted > .form-note:not(#inquiryStatus) {

@@ -729,10 +729,16 @@ document.addEventListener("DOMContentLoaded", () => {
       inquiryForm.reset();
       const status = document.getElementById("inquiryStatus");
       if (status) {
+<<<<<<< HEAD
         status.classList.remove("inquiry-confirmation", "inquiry-submission-pending", "inquiry-submission-error");
         status.replaceChildren();
       }
       inquiryForm.removeAttribute("aria-busy");
+=======
+        status.classList.remove("inquiry-confirmation");
+        status.replaceChildren();
+      }
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
       refreshIncomeSections();
       toggleConditional(loanTypeOtherWrap, false);
       toggleConditional(document.getElementById("gstNumberWrap"), false);
@@ -750,8 +756,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   const inquiryBox = inquiryModal.querySelector(".inquiry-box");
   const nameInput = document.getElementById("inqName");
+<<<<<<< HEAD
   const inquirySubmitButton = inquiryForm.querySelector('button[type="submit"]');
   let inquirySubmitting = false;
+=======
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
 
 
   inquiryClose?.addEventListener("click", closeInquiry);
@@ -783,10 +792,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   inquiryForm.addEventListener("submit", (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     if (inquirySubmitting) return;
     const status = document.getElementById("inquiryStatus");
     status.textContent = "";
     status.classList.remove("inquiry-confirmation", "inquiry-submission-pending", "inquiry-submission-error");
+=======
+    const status = document.getElementById("inquiryStatus");
+    status.textContent = "";
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
     const activeFields = Array.from(inquiryForm.querySelectorAll("input, select, textarea")).filter(field => !field.closest("[hidden]"));
     activeFields.forEach(field => field.setCustomValidity(""));
     let valid = true;
@@ -870,7 +884,11 @@ document.addEventListener("DOMContentLoaded", () => {
       `Reference 2 Contact Number: ${value("inqRef2Contact")}`,
       `Reference 2 Relationship: ${value("inqRef2Relation")}`,
       `Assigned Loan Expert (State-wise): ${assignedEmployee}`,
+<<<<<<< HEAD
       // The email summary does not repeat Aadhaar/PAN values; the API receives the submitted form fields separately.
+=======
+      // Never place full Aadhaar/PAN identifiers in a WhatsApp URL. The applicant can share these securely later if required.
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
       "Aadhaar Number: Provided securely with application",
       "PAN Number: Provided securely with application",
       `CIBIL Score: ${value("inqCibil")}`,
@@ -921,8 +939,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (value("inqSalaryExistingLoan") === "Yes") lines.push(`Existing Loan Amount: ${formatAmount("inqSalaryExistingLoanAmount")}`, `Existing Monthly EMI: ${formatAmount("inqSalaryExistingEmi")}`, `Any EMI bounced in last 3 months: ${value("inqSalaryExistingEmiBounced")}`, `Recently applied for any loan: ${value("inqSalaryExistingEmiRecentApply")}`);
     }
     const message = lines.join("\n");
+<<<<<<< HEAD
 
     // Keep the existing email content and submit the same filled fields to the server-side WhatsApp API.
+=======
+    status.classList.add("inquiry-confirmation");
+
+    // Send the same submitted inquiry through the existing SubmitForm.co server endpoint
+    // as well as preparing WhatsApp. Only fields in the active form path are emailed.
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
     const emailPayload = {
       _subject: `New Infinity Loan Services Inquiry - ${value("inqName")}`,
       _template: "table"
@@ -942,6 +967,7 @@ document.addEventListener("DOMContentLoaded", () => {
     emailPayload["Assigned Loan Expert (State-wise)"] = assignedEmployee;
     emailPayload["Language Preferred"] = value("inqPreferredLanguage");
     emailPayload.inquiryMessage = message;
+<<<<<<< HEAD
     const sendSubmission = async endpoint => {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -1029,6 +1055,48 @@ document.addEventListener("DOMContentLoaded", () => {
         inquirySubmitButton.querySelector("span").textContent = "Submit Inquiry";
       }
     });
+=======
+    const emailDelivery = fetch("/api/formsubmit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(emailPayload)
+    }).then(async response => {
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === "false" || result.success === false) {
+        throw new Error(result.message || "SubmitForm.co could not accept the inquiry.");
+      }
+      return result;
+    });
+
+    const whatsappOpened = openWhatsApp(message, status);
+    if (whatsappOpened) {
+      // Keep the existing thank-you view; update the email line when SubmitForm.co responds.
+      inquiryForm.classList.add("is-submitted");
+      status.innerHTML = '<div class="inquiry-thankyou-icon" aria-hidden="true">✓</div><h2 class="inquiry-thankyou-title">🎉 Thank You for Your Submission!</h2><h3 class="inquiry-thankyou-lead">✅ Your Inquiry Has Been Submitted Successfully!</h3><p>Our team will review your details and contact you soon to discuss suitable loan options tailored to your needs.</p><p>🤝 Thank you for choosing Infinity Loan Services – Your Trusted Loan Partner!</p><p id="inquiryEmailStatus" role="status" aria-live="polite">Sending a copy of your inquiry to email…</p><button type="button" class="inquiry-submit inquiry-apply-again" id="inquiryApplyAgain"><span>Apply Now — Start a New Application</span><strong>↗</strong></button>';
+      status.setAttribute("role", "status");
+      status.setAttribute("aria-live", "assertive");
+      emailDelivery.then(() => {
+        const emailStatus = document.getElementById("inquiryEmailStatus");
+        if (emailStatus) emailStatus.textContent = "Email copy was accepted by SubmitForm.co.";
+      }).catch(error => {
+        console.error("SubmitForm.co email delivery failed:", error);
+        const emailStatus = document.getElementById("inquiryEmailStatus");
+        if (emailStatus) emailStatus.textContent = "Email could not be confirmed. Please check the SubmitForm.co setup and try again.";
+      });
+      document.getElementById("inquiryApplyAgain")?.addEventListener("click", () => {
+        resetInquiryForNewApplication();
+        inquiryBox?.classList.remove("is-compact");
+        document.getElementById("inqName")?.focus();
+      });
+    } else {
+      emailDelivery.then(() => {
+        status.textContent = "Email copy was accepted by SubmitForm.co.";
+      }).catch(error => {
+        console.error("SubmitForm.co email delivery failed:", error);
+        status.textContent = "Your browser blocked WhatsApp and the email could not be confirmed. Please check SubmitForm.co setup and retry.";
+      });
+    }
+>>>>>>> 5fbbd1d39d025f677051e5c63e8954cdfe6cc57e
   });
   }
 
