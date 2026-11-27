@@ -527,7 +527,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = new FormData(quickForm);
       const value = name => String(data.get(name) || "").trim();
       const message = [
-        "Hello Infinity Loans & Business Solutions!",
+        "Hello Infinity Loan Services!",
         "",
         "Quick Loan Inquiry",
         `Name: ${value("fullName")}`,
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `Employment: ${value("employmentType")}`
       ].join("\n");
       const emailPayload = {
-        _subject: `New Infinity Loans & Business Solutions Quick Inquiry - ${value("fullName")}`,
+        _subject: `New Infinity Loan Services Quick Inquiry - ${value("fullName")}`,
         "Full Name": value("fullName"),
         "Mobile Number": value("mobile"),
         City: value("city"),
@@ -849,7 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const assignedEmployee = stateEmployeeMap[value("inqState")] || "Not assigned – state mapping required";
     const lines = [
-      "*INFINITY LOANS & BUSINESS SOLUTIONS - NEW INQUIRY*", "",
+      "*Infinity Loan Services - NEW INQUIRY*", "",
       `*NAME:* *${value("inqName")}*`,
       `Contact Number: ${value("inqContact")}`,
       `Email: ${value("inqEmail")}`,
@@ -921,7 +921,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Send the same submitted inquiry through the existing SubmitForm.co server endpoint
     // as well as preparing WhatsApp. Only fields in the active form path are emailed.
     const emailPayload = {
-      _subject: `New Infinity Loans & Business Solutions Inquiry - ${value("inqName")}`,
+      _subject: `New Infinity Loan Services Inquiry - ${value("inqName")}`,
       _template: "table"
     };
     activeFields.forEach(field => {
@@ -955,7 +955,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (whatsappOpened) {
       // Keep the existing thank-you view; update the email line when SubmitForm.co responds.
       inquiryForm.classList.add("is-submitted");
-      status.innerHTML = '<div class="inquiry-thankyou-icon" aria-hidden="true">✓</div><h2 class="inquiry-thankyou-title">🎉 Thank You for Your Submission!</h2><h3 class="inquiry-thankyou-lead">✅ Your Inquiry Has Been Submitted Successfully!</h3><p>Our team will review your details and contact you soon to discuss suitable loan options tailored to your needs.</p><p>🤝 Thank you for choosing Infinity Loans & Business Solutions – Your Trusted Loan Partner!</p><p id="inquiryEmailStatus" role="status" aria-live="polite">Sending a copy of your inquiry to email…</p><button type="button" class="inquiry-submit inquiry-apply-again" id="inquiryApplyAgain"><span>Apply Now — Start a New Application</span><strong>↗</strong></button>';
+      status.innerHTML = '<div class="inquiry-thankyou-icon" aria-hidden="true">✓</div><h2 class="inquiry-thankyou-title">🎉 Thank You for Your Submission!</h2><h3 class="inquiry-thankyou-lead">✅ Your Inquiry Has Been Submitted Successfully!</h3><p>Our team will review your details and contact you soon to discuss suitable loan options tailored to your needs.</p><p>🤝 Thank you for choosing Infinity Loan Services – Your Trusted Loan Partner!</p><p id="inquiryEmailStatus" role="status" aria-live="polite">Sending a copy of your inquiry to email…</p><button type="button" class="inquiry-submit inquiry-apply-again" id="inquiryApplyAgain"><span>Apply Now — Start a New Application</span><strong>↗</strong></button>';
       status.setAttribute("role", "status");
       status.setAttribute("aria-live", "assertive");
       emailDelivery.then(() => {
@@ -991,8 +991,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const digits = mobile.value.replace(/\D/g, "");
       mobile.setCustomValidity(/^[6-9]\d{9}$/.test(digits) ? "" : "Enter a valid 10-digit Indian mobile number.");
       if (!contactForm.reportValidity()) return;
-      const message = `*INFINITY LOANS & BUSINESS SOLUTIONS - CONTACT ENQUIRY*\n\nName: ${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}\nEmail: ${document.getElementById("cfEmail").value.trim()}\nMobile: ${digits}\nLoan Type: ${document.getElementById("cfLoanType")?.value || "Not specified"}\nRequired Amount: ${document.getElementById("cfAmount")?.value || "Not specified"}\nCIBIL Score: ${document.getElementById("cfCibil")?.value || "Not provided (optional)"}\nMonthly Income Range: ${document.getElementById("cfIncomeRange")?.value || "Not provided (optional)"}\nEmployment / Business Type: ${document.getElementById("cfSubject").value.trim() || "Not specified"}\nMessage: ${document.getElementById("cfMessage").value.trim()}`;
-      const payload = { _subject: "New Infinity Loans & Business Solutions — Contact Enquiry", Name: `${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}`, Email: document.getElementById("cfEmail").value.trim(), Mobile: digits, "Loan Type": document.getElementById("cfLoanType")?.value || "Not specified", "Required Amount": document.getElementById("cfAmount")?.value || "Not specified", "CIBIL Score": document.getElementById("cfCibil")?.value || "Not provided", "Monthly Income Range": document.getElementById("cfIncomeRange")?.value || "Not provided", "Employment / Business Type": document.getElementById("cfSubject").value.trim() || "Not specified", Message: document.getElementById("cfMessage").value.trim() };
+      const message = `*Infinity Loan Services - CONTACT ENQUIRY*\n\nName: ${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}\nEmail: ${document.getElementById("cfEmail").value.trim()}\nMobile: ${digits}\nLoan Type: ${document.getElementById("cfLoanType")?.value || "Not specified"}\nRequired Amount: ${document.getElementById("cfAmount")?.value || "Not specified"}\nCIBIL Score: ${document.getElementById("cfCibil")?.value || "Not provided (optional)"}\nMonthly Income Range: ${document.getElementById("cfIncomeRange")?.value || "Not provided (optional)"}\nEmployment / Business Type: ${document.getElementById("cfSubject").value.trim() || "Not specified"}\nMessage: ${document.getElementById("cfMessage").value.trim()}`;
+      const payload = { _subject: "New Infinity Loan Services — Contact Enquiry", Name: `${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}`, Email: document.getElementById("cfEmail").value.trim(), Mobile: digits, "Loan Type": document.getElementById("cfLoanType")?.value || "Not specified", "Required Amount": document.getElementById("cfAmount")?.value || "Not specified", "CIBIL Score": document.getElementById("cfCibil")?.value || "Not provided", "Monthly Income Range": document.getElementById("cfIncomeRange")?.value || "Not provided", "Employment / Business Type": document.getElementById("cfSubject").value.trim() || "Not specified", Message: document.getElementById("cfMessage").value.trim() };
       const emailDelivery = fetch("/api/formsubmit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(payload) }).then(async response => { const result = await response.json().catch(() => ({})); if (!response.ok || result.success === false) throw new Error(result.message || "Email submission failed"); return result; });
       const opened = openWhatsApp(message, status);
       emailDelivery.then(() => { status.textContent = opened ? "Email notification accepted. WhatsApp message is prepared—tap Send in WhatsApp." : "Email notification accepted. WhatsApp was blocked; please use the WhatsApp contact link."; }).catch(error => { console.error("Contact enquiry email failed:", error); status.textContent = opened ? "WhatsApp message is prepared—tap Send. Email could not be confirmed; please contact us if needed." : "Email could not be confirmed and WhatsApp was blocked. Please retry."; });
@@ -1020,8 +1020,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const label = partnerForm.querySelector(`label[for="${el.id}"]`);
         return { name: el.name, label: el.name === "privacyConsent" ? "Partner Registration Consent & Declaration" : (label?.innerText || el.name).replace(/\s*\*\s*$/, "").trim(), value: el.value.trim() };
       }).filter(item => item.value);
-      const message = "*INFINITY LOANS & BUSINESS SOLUTIONS - PARTNER REGISTRATION*\n\n" + entries.map(item => `*${item.label}:* ${item.value}`).join("\n");
-      const emailPayload = { _subject: "New Infinity Loans & Business Solutions - Partner Registration", _template: "table" };
+      const message = "*Infinity Loan Services - PARTNER REGISTRATION*\n\n" + entries.map(item => `*${item.label}:* ${item.value}`).join("\n");
+      const emailPayload = { _subject: "New Infinity Loan Services - Partner Registration", _template: "table" };
       entries.forEach(item => { emailPayload[item.label] = item.value; });
       const emailDelivery = fetch("/api/formsubmit", {
         method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(emailPayload)

@@ -1357,7 +1357,7 @@ h1 span{
 }
 
 
-/* PROFESSIONAL FOOTER — Infinity Loans & Business Solutions */
+/* PROFESSIONAL FOOTER — Infinity Loan Services */
 .professional-footer{
   background:
     radial-gradient(ellipse at 8% 0%,rgba(0,91,190,.22),transparent 35%),
@@ -2599,7 +2599,7 @@ h1 span{
 .refer-field input,.refer-field select,.refer-field textarea{box-sizing:border-box;min-width:0;width:100%;font-size:14px;line-height:1.4}
 
 
-/* Infinity Loans & Business Solutions: fixed access to the existing loan inquiry popup */
+/* Infinity Loan Services: fixed access to the existing loan inquiry popup */
 .floating-apply-now{
   position:fixed;right:22px;bottom:22px;z-index:950;
   display:inline-flex;align-items:center;gap:10px;
