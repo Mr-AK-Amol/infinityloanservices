@@ -684,7 +684,7 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshIncomeSections();
   const inquiryClose = document.getElementById("inquiryClose");
   const inquiryOverlay = document.querySelector("[data-close-inquiry]");
-  const whatsappNumber = "919579880841";
+  const whatsappNumber = "917045408368";
   const openWhatsApp = (message, status) => {
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     const popup = window.open(url, "_blank");
@@ -965,62 +965,23 @@ document.addEventListener("DOMContentLoaded", () => {
     status.setAttribute("aria-busy", "true");
     status.textContent = "Sending your inquiry to email and WhatsApp…";
 
-    let emailState = "pending";
-    let whatsappState = "pending";
-    const updateProgress = () => {
-      if (emailState === "accepted" && whatsappState === "pending") {
-        status.textContent = "Email accepted. Waiting for WhatsApp to accept the inquiry…";
-      } else if (whatsappState === "accepted" && emailState === "pending") {
-        status.textContent = "WhatsApp accepted the inquiry. Waiting for email submission…";
-      }
-    };
-    const emailDelivery = sendSubmission("/api/formsubmit").then(result => {
-      emailState = "accepted";
-      updateProgress();
-      return result;
-    }).catch(error => {
-      emailState = "failed";
-      throw error;
-    });
-    const whatsappDelivery = sendSubmission("/api/whatsapp").then(result => {
-      whatsappState = "accepted";
-      updateProgress();
-      return result;
-    }).catch(error => {
-      whatsappState = "failed";
-      throw error;
-    });
-
-    Promise.allSettled([emailDelivery, whatsappDelivery]).then(results => {
+    // Open WhatsApp with a pre-filled message; the customer must tap Send.
+    const whatsappOpened = openWhatsApp(message, status);
+    const emailDelivery = sendSubmission("/api/formsubmit");
+    emailDelivery.then(() => {
       status.classList.remove("inquiry-submission-pending");
       status.removeAttribute("aria-busy");
-      if (results.every(result => result.status === "fulfilled")) {
-        status.classList.add("inquiry-confirmation");
-        inquiryForm.classList.add("is-submitted");
-        status.innerHTML = '<div class="inquiry-thankyou-icon" aria-hidden="true">✓</div><h2 class="inquiry-thankyou-title">🎉 Thank You for Your Submission!</h2><h3 class="inquiry-thankyou-lead">✅ Your Inquiry Has Been Submitted Successfully!</h3><p>Our team will review your details and contact you soon to discuss suitable loan options tailored to your needs.</p><p>🤝 Thank you for choosing Infinity Loan Services – Your Trusted Loan Partner!</p><p>Email was accepted by FormSubmit.co, and WhatsApp accepted all inquiry details for delivery.</p><button type="button" class="inquiry-submit inquiry-apply-again" id="inquiryApplyAgain"><span>Apply Now — Start a New Application</span><strong>↗</strong></button>';
-        status.setAttribute("role", "status");
-        status.setAttribute("aria-live", "assertive");
-        document.getElementById("inquiryApplyAgain")?.addEventListener("click", () => {
-          resetInquiryForNewApplication();
-          inquiryBox?.classList.remove("is-compact");
-          document.getElementById("inqName")?.focus();
-        });
-      } else {
-        status.classList.add("inquiry-submission-error");
-        status.setAttribute("role", "alert");
-        status.setAttribute("aria-live", "assertive");
-        const emailResult = results[0];
-        const whatsappResult = results[1];
-        const emailMessage = emailResult.status === "fulfilled"
-          ? "Email was accepted by FormSubmit.co."
-          : `Email failed: ${emailResult.reason.message}`;
-        const whatsappMessage = whatsappResult.status === "fulfilled"
-          ? "WhatsApp accepted the inquiry."
-          : `WhatsApp failed: ${whatsappResult.reason.message}`;
-        status.textContent = `${emailMessage} ${whatsappMessage} No successful submission is being shown; please resolve the failed delivery and retry. If either service accepted the inquiry, retrying may create a duplicate notification.`;
-        if (emailResult.status === "rejected") console.error("FormSubmit email submission failed:", emailResult.reason);
-        if (whatsappResult.status === "rejected") console.error("WhatsApp submission failed:", whatsappResult.reason);
-      }
+      status.classList.add("inquiry-confirmation");
+      inquiryForm.classList.add("is-submitted");
+      status.textContent = whatsappOpened
+        ? "Email request accepted. WhatsApp opened with your details prepared; review the message and tap Send."
+        : "Email request accepted. WhatsApp could not open automatically; please use the WhatsApp contact link.";
+    }).catch(error => {
+      status.classList.remove("inquiry-submission-pending");
+      status.removeAttribute("aria-busy");
+      status.classList.add("inquiry-submission-error");
+      status.textContent = `Email could not be confirmed: ${error.message}. WhatsApp ${whatsappOpened ? "is open with your details prepared; tap Send." : "could not open automatically."}`;
+      console.error("FormSubmit email submission failed:", error);
     }).finally(() => {
       inquirySubmitting = false;
       inquiryForm.removeAttribute("aria-busy");

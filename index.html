@@ -58,17 +58,6 @@
 <div class="loader-ring"></div>
 <img alt="Infinity Loan Services" src="assets/infinity-logo.png"/>
 </div>
-<script>
-  // Fail-safe: never leave the page covered if the main script fails to load.
-  window.setTimeout(() => {
-    const loader = document.getElementById("preloader");
-    if (loader) {
-      loader.style.opacity = "0";
-      loader.style.pointerEvents = "none";
-      window.setTimeout(() => loader.remove(), 650);
-    }
-  }, 5000);
-</script>
 <div class="progress-bar" id="progressBar"></div>
 <header class="site-header" id="header">
 <nav class="navbar container">
