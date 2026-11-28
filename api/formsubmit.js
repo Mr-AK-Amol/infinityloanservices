@@ -15,11 +15,14 @@ module.exports = async function handler(req, res) {
     }
 
     // Recipient is fixed server-side; clients cannot redirect submissions elsewhere.
+<<<<<<< HEAD
     // Append a unique identifier to help each inquiry arrive as a separate email.
     const rawSubject = String(payload._subject || "Website Inquiry")
       .replace(/[\\r\\n]+/g, " ").slice(0, 140);
     const inquiryId = `${Date.now()}-${require("crypto").randomUUID().slice(0, 8).toUpperCase()}`;
     payload._subject = `${rawSubject} | Inquiry ID ${inquiryId}`;
+=======
+>>>>>>> ae5e76e25ada80995aee1653e963f0825d591510
     payload._captcha = "false";
     payload._template = "table";
 

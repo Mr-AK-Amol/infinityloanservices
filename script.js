@@ -536,8 +536,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `PIN Code: ${value("pincode")}`,
         `Loan Type: ${value("loanType")}`,
         `Required Amount: ₹${value("loanAmount")}`,
+<<<<<<< HEAD
         `Employment: ${value("employmentType")}`,
         `Cibil Issue: ${value("cibilIssue")}`
+=======
+        `Employment: ${value("employmentType")}`
+>>>>>>> ae5e76e25ada80995aee1653e963f0825d591510
       ].join("\n");
       const emailPayload = {
         _subject: `New Infinity Loan Services Quick Inquiry - ${value("fullName")}`,
@@ -548,7 +552,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "Loan Type": value("loanType"),
         "Required Loan Amount": `₹${value("loanAmount")}`,
         "Employment Type": value("employmentType"),
+<<<<<<< HEAD
         "Cibil Issue": value("cibilIssue"),
+=======
+>>>>>>> ae5e76e25ada80995aee1653e963f0825d591510
         Consent: "Agreed"
       };
       const emailDelivery = fetch("/api/formsubmit", {
