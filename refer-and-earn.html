@@ -90,6 +90,14 @@
 </div>
 </div>
 </footer></div></main><script>
+const referFormSubmitEndpoint='https://formsubmit.co/ajax/official.infinityloanservices@gmail.com';
+function prepareReferPayload(payload){
+ const randomId=(window.crypto&&typeof window.crypto.randomUUID==='function')?window.crypto.randomUUID().split('-')[0].toUpperCase():Math.random().toString(36).slice(2,10).toUpperCase();
+ payload._subject=(payload._subject||'Website Referral')+' | Inquiry ID '+Date.now()+'-'+randomId;
+ payload._captcha='false';
+ payload._template=payload._template||'table';
+ return payload;
+}
 document.getElementById('referForm').addEventListener('submit', async function(e){
 e.preventDefault();
 const form=this;
@@ -110,15 +118,14 @@ const submitButton=form.querySelector('button[type="submit"]');
 if(submitButton.disabled) return;
 submitButton.disabled=true;
 submitButton.textContent='Submitting…';
-const wa=window.open('https://wa.me/917045408368?text='+encodeURIComponent(message),'_blank');
-if(wa) wa.opener=null;
-status.textContent='Submitting referral details to email… WhatsApp opens with your filled fields; tap Send in WhatsApp to send the message.';
+const wa=window.open('about:blank','_blank');
+status.textContent='Submitting referral details to email…';
 try{
-const response=await fetch('/api/formsubmit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+const response=await fetch(referFormSubmitEndpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(prepareReferPayload(payload))});
 const result=await response.json().catch(()=>({}));
-if(!response.ok||result.success===false||result.success==='false') throw new Error(result.message||'Email submission failed');
-status.textContent='Email request accepted by SubmitForm.co. WhatsApp is prepared; tap Send in WhatsApp. SubmitForm.co accepted the email request.';
-}catch(err){console.error('Referral email failed:',err);status.textContent='WhatsApp is prepared; tap Send to send it. Email could not be confirmed—check SubmitForm.co setup and retry.';}finally{submitButton.disabled=false;submitButton.textContent='Send Referral on WhatsApp ↗';}
+if(!response.ok||(result.success!==true&&result.success!=='true')) throw new Error(result.message||'Email submission failed');
+if(wa&&!wa.closed){wa.location.href='https://wa.me/917045408368?text='+encodeURIComponent(message);wa.opener=null;status.textContent='Email request accepted by FormSubmit. WhatsApp is prepared; review the message and tap Send.';}else{status.textContent='Email request accepted by FormSubmit. WhatsApp could not open automatically; use the WhatsApp contact link.';}
+}catch(err){if(wa&&!wa.closed)wa.close();console.error('Referral email failed:',err);status.textContent='Email could not be confirmed. Please try again or contact us directly.';}finally{submitButton.disabled=false;submitButton.textContent='Send Referral on WhatsApp ↗';}
 });
 </script>
 <div class="expert-modal" id="expertModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="expertModalTitle"><button class="expert-modal-overlay" type="button" data-close-expert aria-label="Close expert popup"></button><div class="expert-modal-card" role="document"><div class="expert-modal-header"><div class="expert-modal-brand"><img src="assets/infinity-logo.png" alt="Infinity Loan Services logo"><strong>Infinity Loan Services</strong></div><button type="button" class="expert-modal-close" data-close-expert aria-label="Close">×</button></div><p class="expert-eyebrow">TALK WITH OUR LOAN EXPERT</p><h2 id="expertModalTitle">Aamin Khan</h2><p class="expert-role">Founder &amp; Director</p><div class="expert-contact-details"><a href="tel:+919579880841">☎ +91 95798 80841 | +91 97666 16960 | +91 70454 08368</a><a href="mailto:official.infinityloanservices@gmail.com">✉ official.infinityloanservices@gmail.com</a></div><p class="expert-help">Get guidance on available loan options and the application process.</p></div></div>

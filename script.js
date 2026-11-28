@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Direct FormSubmit delivery: no custom Vercel API route is used.
+  const prepareFormSubmitPayload = payload => {
+    const randomId = (window.crypto && typeof window.crypto.randomUUID === "function")
+      ? window.crypto.randomUUID().split("-")[0].toUpperCase()
+      : Math.random().toString(36).slice(2, 10).toUpperCase();
+    const inquiryId = `${Date.now()}-${randomId}`;
+    payload._subject = `${String(payload._subject || "Website Inquiry").replace(/[\r\n]+/g, " ")} | Inquiry ID ${inquiryId}`;
+    payload._captcha = "false";
+    payload._template = payload._template || "table";
+    return payload;
+  };
+  const FORM_SUBMIT_ENDPOINT = "https://formsubmit.co/ajax/official.infinityloanservices@gmail.com";
   const preloader = document.getElementById("preloader");
   const header = document.getElementById("header");
   const progressBar = document.getElementById("progressBar");
@@ -551,22 +563,24 @@ document.addEventListener("DOMContentLoaded", () => {
         "Cibil Issue": value("cibilIssue"),
         Consent: "Agreed"
       };
-      const emailDelivery = fetch("/api/formsubmit", {
+      const emailDelivery = fetch(FORM_SUBMIT_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(emailPayload)
+        body: JSON.stringify(prepareFormSubmitPayload(emailPayload))
       }).then(async response => {
         const result = await response.json().catch(() => ({}));
-        if (!response.ok || result.success === false || result.success === "false") {
+        if (!response.ok || (result.success !== true && result.success !== "true")) {
           throw new Error(result.message || "Email could not be submitted.");
         }
         return result;
       });
 
-      const whatsappOpened = openWhatsApp(message, quickStatus);
+      const whatsappWindow = window.open("about:blank", "_blank");
       emailDelivery.then(() => {
+        const whatsappOpened = openWhatsApp(message, quickStatus, whatsappWindow);
         quickEmailStatus.textContent = "Email copy was accepted by our email service.";
       }).catch(error => {
+        if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
         console.error("Quick inquiry email delivery failed:", error);
         quickEmailStatus.textContent = "Email could not be confirmed. Please try again or contact us directly.";
       }).finally(() => {
@@ -687,9 +701,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const inquiryClose = document.getElementById("inquiryClose");
   const inquiryOverlay = document.querySelector("[data-close-inquiry]");
   const whatsappNumber = "917045408368";
-  const openWhatsApp = (message, status) => {
+  const openWhatsApp = (message, status, reservedWindow = null) => {
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    const popup = window.open(url, "_blank");
+    const popup = reservedWindow || window.open(url, "_blank");
+    if (reservedWindow && popup && !popup.closed) popup.location.href = url;
     if (popup) {
       popup.opener = null;
       status.textContent = "WhatsApp opened with your message ready. Review it and choose whether to send.";
@@ -948,7 +963,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(emailPayload)
+        body: JSON.stringify(prepareFormSubmitPayload(emailPayload))
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || (result.success !== true && result.success !== "true")) {
@@ -968,9 +983,10 @@ document.addEventListener("DOMContentLoaded", () => {
     status.textContent = "Sending your inquiry to email and WhatsApp…";
 
     // Open WhatsApp with a pre-filled message; the customer must tap Send.
-    const whatsappOpened = openWhatsApp(message, status);
-    const emailDelivery = sendSubmission("/api/formsubmit");
+    const whatsappWindow = window.open("about:blank", "_blank");
+    const emailDelivery = sendSubmission(FORM_SUBMIT_ENDPOINT);
     emailDelivery.then(() => {
+      const whatsappOpened = openWhatsApp(message, status, whatsappWindow);
       status.classList.remove("inquiry-submission-pending");
       status.removeAttribute("aria-busy");
       status.classList.add("inquiry-confirmation");
@@ -979,6 +995,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? "Email request accepted. WhatsApp opened with your details prepared; review the message and tap Send."
         : "Email request accepted. WhatsApp could not open automatically; please use the WhatsApp contact link.";
     }).catch(error => {
+      if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close();
       status.classList.remove("inquiry-submission-pending");
       status.removeAttribute("aria-busy");
       status.classList.add("inquiry-submission-error");
@@ -1006,9 +1023,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!contactForm.reportValidity()) return;
       const message = `*Infinity Loan Services - CONTACT ENQUIRY*\n\nName: ${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}\nEmail: ${document.getElementById("cfEmail").value.trim()}\nMobile: ${digits}\nLoan Type: ${document.getElementById("cfLoanType")?.value || "Not specified"}\nRequired Amount: ${document.getElementById("cfAmount")?.value || "Not specified"}\nCIBIL Score: ${document.getElementById("cfCibil")?.value || "Not provided (optional)"}\nMonthly Income Range: ${document.getElementById("cfIncomeRange")?.value || "Not provided (optional)"}\nEmployment / Business Type: ${document.getElementById("cfSubject").value.trim() || "Not specified"}\nMessage: ${document.getElementById("cfMessage").value.trim()}`;
       const payload = { _subject: "New Infinity Loan Services — Contact Enquiry", Name: `${document.getElementById("cfFirst").value.trim()} ${document.getElementById("cfLast").value.trim()}`, Email: document.getElementById("cfEmail").value.trim(), Mobile: digits, "Loan Type": document.getElementById("cfLoanType")?.value || "Not specified", "Required Amount": document.getElementById("cfAmount")?.value || "Not specified", "CIBIL Score": document.getElementById("cfCibil")?.value || "Not provided", "Monthly Income Range": document.getElementById("cfIncomeRange")?.value || "Not provided", "Employment / Business Type": document.getElementById("cfSubject").value.trim() || "Not specified", Message: document.getElementById("cfMessage").value.trim() };
-      const emailDelivery = fetch("/api/formsubmit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(payload) }).then(async response => { const result = await response.json().catch(() => ({})); if (!response.ok || result.success === false) throw new Error(result.message || "Email submission failed"); return result; });
-      const opened = openWhatsApp(message, status);
-      emailDelivery.then(() => { status.textContent = opened ? "Email notification accepted. WhatsApp message is prepared—tap Send in WhatsApp." : "Email notification accepted. WhatsApp was blocked; please use the WhatsApp contact link."; }).catch(error => { console.error("Contact enquiry email failed:", error); status.textContent = opened ? "WhatsApp message is prepared—tap Send. Email could not be confirmed; please contact us if needed." : "Email could not be confirmed and WhatsApp was blocked. Please retry."; });
+      const emailDelivery = fetch(FORM_SUBMIT_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(prepareFormSubmitPayload(payload)) }).then(async response => { const result = await response.json().catch(() => ({})); if (!response.ok || (result.success !== true && result.success !== "true")) throw new Error(result.message || "Email submission failed"); return result; });
+      const whatsappWindow = window.open("about:blank", "_blank");
+      emailDelivery.then(() => { const opened = openWhatsApp(message, status, whatsappWindow); status.textContent = opened ? "Email notification accepted. WhatsApp message is prepared—tap Send in WhatsApp." : "Email notification accepted. WhatsApp was blocked; please use the WhatsApp contact link."; }).catch(error => { if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close(); console.error("Contact enquiry email failed:", error); status.textContent = "Email could not be confirmed; please try again or contact us directly."; });
     });
     mobile.addEventListener("input", () => mobile.setCustomValidity(""));
   }
@@ -1036,11 +1053,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const message = "*Infinity Loan Services - PARTNER REGISTRATION*\n\n" + entries.map(item => `*${item.label}:* ${item.value}`).join("\n");
       const emailPayload = { _subject: "New Infinity Loan Services - Partner Registration", _template: "table" };
       entries.forEach(item => { emailPayload[item.label] = item.value; });
-      const emailDelivery = fetch("/api/formsubmit", {
-        method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(emailPayload)
-      }).then(async response => { const result = await response.json().catch(() => ({})); if (!response.ok || result.success === false || result.success === "false") throw new Error(result.message || "Email submission failed"); return result; });
-      const opened = openWhatsApp(message, status);
-      emailDelivery.then(() => { status.textContent = opened ? "WhatsApp is ready to send. Email submission was also accepted by SubmitForm.co." : "Email submission was accepted. WhatsApp was blocked by your browser; use the WhatsApp link if shown."; }).catch(error => { console.error("Partner registration email failed:", error); status.textContent = opened ? "WhatsApp is ready to send, but email could not be confirmed. Check SubmitForm.co setup and retry." : "Email could not be confirmed and WhatsApp was blocked. Please retry."; }).finally(() => { partnerSubmitting = false; if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Register as Loan Partner ↗"; } });
+      const emailDelivery = fetch(FORM_SUBMIT_ENDPOINT, {
+        method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(prepareFormSubmitPayload(emailPayload))
+      }).then(async response => { const result = await response.json().catch(() => ({})); if (!response.ok || (result.success !== true && result.success !== "true")) throw new Error(result.message || "Email submission failed"); return result; });
+      const whatsappWindow = window.open("about:blank", "_blank");
+      emailDelivery.then(() => { const opened = openWhatsApp(message, status, whatsappWindow); status.textContent = opened ? "WhatsApp is ready to send. Email submission was also accepted by SubmitForm.co." : "Email submission was accepted. WhatsApp was blocked by your browser; use the WhatsApp link if shown."; }).catch(error => { if (whatsappWindow && !whatsappWindow.closed) whatsappWindow.close(); console.error("Partner registration email failed:", error); status.textContent = "Email could not be confirmed. Please try again or contact us directly."; }).finally(() => { partnerSubmitting = false; if (submitButton) { submitButton.disabled = false; submitButton.textContent = "Register as Loan Partner ↗"; } });
     });
     mobile.addEventListener("input", () => mobile.setCustomValidity(""));
     pincode.addEventListener("input", () => pincode.setCustomValidity(""));
