@@ -110,8 +110,9 @@ const fields=[...form.querySelectorAll('input,select,textarea')].filter(el=>el.i
 const entries=fields.map(el=>{const label=form.querySelector('label[for="'+el.id+'"]');return {label:(label?.innerText||el.id).replace(/\s*\*\s*$/,'').trim(),value:el.value.trim()}}).filter(x=>x.value);
 const consent=document.getElementById('clientConsent');
 if(consent.checked) entries.push({label:'Client permission to share details',value:'Yes'});
-const message='*Infinity Loan Services — REFERRAL*\n\n'+entries.map(x=>'*'+x.label+':* '+x.value).join('\n');
-const payload={_subject:'New Infinity Loan Services - Referral',_template:'table'};
+const applicationId=window.__ilsActiveSubmissionId||'';
+const message='*Infinity Loan Services — REFERRAL*\n\n'+entries.map(x=>'*'+x.label+':* '+x.value).join('\n')+'\nApplication ID: '+applicationId;
+const payload={_subject:'New Infinity Loan Services - Referral',_template:'table','Application ID':applicationId};
 entries.forEach(x=>payload[x.label]=x.value);
 const status=document.getElementById('referStatus');
 const submitButton=form.querySelector('button[type="submit"]');

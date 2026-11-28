@@ -11,6 +11,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return payload;
   };
   const FORM_SUBMIT_ENDPOINT = "https://formsubmit.co/ajax/official.infinityloanservices@gmail.com";
+  // Submission confirmation + per-submission reference ID for the four requested forms.
+  let activeSubmission = null;
+  const makeApplicationId = (code) => {
+    const d = new Date();
+    const date = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+    const rand = (window.crypto && crypto.randomUUID ? crypto.randomUUID().replace(/-/g,"").slice(0,8) : Math.random().toString(36).slice(2,10)).toUpperCase();
+    return `ILS-${code}-${date}-${rand}`;
+  };
+  const showSubmissionSuccess = (form, id) => {
+    let modal = document.getElementById("ilsSubmissionSuccess");
+    if (!modal) {
+      modal = document.createElement("div"); modal.id = "ilsSubmissionSuccess";
+      modal.innerHTML = `<div class="ils-success-backdrop"></div><section class="ils-success-card" role="dialog" aria-modal="true" aria-labelledby="ilsSuccessTitle"><div class="ils-success-check">✓</div><h2 id="ilsSuccessTitle">Submission Successful!</h2><p>Your details have been submitted successfully.</p><div class="ils-success-id-label">Your Application ID</div><strong class="ils-success-id"></strong><p class="ils-success-note">Please keep this ID for future reference.</p><button type="button" class="ils-success-ok">OK</button></section>`;
+      const style=document.createElement("style"); style.textContent=`#ilsSubmissionSuccess{position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px}#ilsSubmissionSuccess[hidden]{display:none}#ilsSubmissionSuccess .ils-success-backdrop{position:absolute;inset:0;background:rgba(7,20,40,.62);backdrop-filter:blur(7px)}#ilsSubmissionSuccess .ils-success-card{position:relative;width:min(100%,430px);background:#fff;border-radius:22px;padding:30px 24px;text-align:center;box-shadow:0 24px 80px #0004;color:#10284c}#ilsSubmissionSuccess .ils-success-check{margin:0 auto 14px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#e7f8ee;color:#16834a;font-size:34px;font-weight:800}#ilsSubmissionSuccess h2{margin:0 0 10px;font-size:25px}#ilsSubmissionSuccess p{line-height:1.55;color:#637087}#ilsSubmissionSuccess .ils-success-id-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#68768b;margin-top:18px}#ilsSubmissionSuccess .ils-success-id{display:block;background:#f2f6fb;border:1px dashed #9aafc8;border-radius:10px;padding:13px 8px;margin:8px 0;overflow-wrap:anywhere;font-size:16px}#ilsSubmissionSuccess .ils-success-note{font-size:12px}#ilsSubmissionSuccess .ils-success-ok{width:100%;border:0;border-radius:11px;padding:14px;background:#10284c;color:#fff;font-weight:800;font-size:15px;cursor:pointer}`; document.head.appendChild(style); document.body.appendChild(modal);
+      modal.querySelector(".ils-success-ok").addEventListener("click",()=>{ if(form){form.reset(); form.classList.remove("is-submitted"); form.querySelectorAll("[aria-invalid]").forEach(el=>el.removeAttribute("aria-invalid"));} modal.remove(); document.body.classList.remove("ils-success-open"); });
+    }
+    modal.querySelector(".ils-success-id").textContent=id; modal.hidden=false; modal.style.display="flex"; document.body.classList.add("ils-success-open");
+  };
+  document.addEventListener("submit", e=>{ const f=e.target; if(!f || !["quickInquiryForm","inquiryForm","partnerForm","referForm"].includes(f.id)) return; const code={quickInquiryForm:"QI",inquiryForm:"LA",partnerForm:"PR",referForm:"RE"}[f.id]; activeSubmission={form:f,id:makeApplicationId(code)}; window.__ilsActiveSubmissionId=activeSubmission.id; },true);
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(input, init){
+    if(activeSubmission && init && typeof init.body==="string" && String(input).includes("formsubmit.co")){
+      try{const data=JSON.parse(init.body); data["Application ID"]=activeSubmission.id; for(const k of Object.keys(data)){if(typeof data[k]==="string" && /inquiryMessage|message/i.test(k) && !data[k].includes(activeSubmission.id)) data[k]+=`\nApplication ID: ${activeSubmission.id}`;} init={...init,body:JSON.stringify(data)};}catch{}
+    }
+    const response=await originalFetch(input,init);
+    if(activeSubmission && String(input).includes("formsubmit.co") && response.ok){const copy=response.clone(); let ok=false; try{const result=await copy.json();ok=result.success===true||result.success==="true";}catch{} if(ok){const pending=activeSubmission; activeSubmission=null; showSubmissionSuccess(pending.form,pending.id);}}
+    return response;
+  };
   const preloader = document.getElementById("preloader");
   const header = document.getElementById("header");
   const progressBar = document.getElementById("progressBar");
@@ -702,7 +730,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const inquiryOverlay = document.querySelector("[data-close-inquiry]");
   const whatsappNumber = "917045408368";
   const openWhatsApp = (message, status, reservedWindow = null) => {
-    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const withId = window.__ilsActiveSubmissionId && !message.includes(window.__ilsActiveSubmissionId) ? `${message}\nApplication ID: ${window.__ilsActiveSubmissionId}` : message;
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(withId)}`;
     const popup = reservedWindow || window.open(url, "_blank");
     if (reservedWindow && popup && !popup.closed) popup.location.href = url;
     if (popup) {
